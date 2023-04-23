@@ -18,7 +18,7 @@ end
 function PlayerStaminaLost(ply) -- server only
 end
 
-function PlayerStaminaGained(client) -- server only
+function PlayerStaminaGained(ply) -- server only
 end
 
 
