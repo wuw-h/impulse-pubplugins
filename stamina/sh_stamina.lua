@@ -4,6 +4,7 @@
 impulse.Config.StaminaDrain = 1 -- Drain per tick
 impulse.Config.StaminaCrouchRegeneration = 2
 impulse.Config.StaminaRegeneration = 1.75
+impulse.Config.MaxStamina = 100
 
 
 -- hooks
@@ -22,6 +23,8 @@ end
 
 
 SYNC_BRTH = impulse.Sync.RegisterVar(SYNC_BOOL)
+
+local meta = FindMetaTable("Player")
 
 local function CalcStaminaChange(ply)
 	local teamData = impulse.Teams.Data[ply:Team()]
@@ -45,7 +48,7 @@ local function CalcStaminaChange(ply)
 		return offset
 	else
 		local current = ply:GetNW2Int("stm", 0)
-		local value = math.Clamp(current + offset, 0, 100)
+		local value = math.Clamp(current + offset, 0, impulse.Config.MaxStamina)
 
 		if current != value then
 			ply:SetNW2Int("stm", value)
@@ -80,7 +83,7 @@ if SERVER then
 		end)
 
 		timer.Simple(0.25, function()
-			ply:SetNW2Int("stm", ply.impulseData.stamina or 100)
+			ply:SetNW2Int("stm", ply.impulseData.stamina or impulse.Config.MaxStamina)
 		end)
 	end
 
@@ -89,18 +92,16 @@ if SERVER then
 		ply.impulseData.stamina = ply:GetNW2Int("stm", 0)
 	end
 
-	local meta = FindMetaTable("Player")
-
 	function meta:RestoreStamina(amount)
 		local current = self:GetNW2Int("stm", 0)
-		local value = math.Clamp(current + amount, 0, 100)
+		local value = math.Clamp(current + amount, 0, impulse.Config.MaxStamina)
 
 		self:SetNW2Int("stm", value)
 	end
 	
 	function meta:ConsumeStamina(amount)
 		local current = self:GetNW2Int("stm", 0)
-		local value = math.Clamp(current - amount, 0, 100)
+		local value = math.Clamp(current - amount, 0, impulse.Config.MaxStamina)
 
 		self:SetNW2Int("stm", value)
 	end
@@ -113,7 +114,7 @@ else
 		offset = math.Remap(FrameTime(), 0, 0.25, 0, offset)
 
 		if offset != 0 then
-			predictedStamina = math.Clamp(predictedStamina + offset, 0, 100)
+			predictedStamina = math.Clamp(predictedStamina + offset, 0, impulse.Config.MaxStamina)
 		end
 	end
 
@@ -125,8 +126,12 @@ else
 	end
 end
 
+function meta:GetStamina()
+	return self:GetNW2Int("stm", 0)
+end
+
 -- Due to impulses' lack of uniformity, there's no real way to display stamina universally.
 -- So, there's two ways you can go about this.
 -- 1. Add stamina to the HUD in this file, using the predictedStamina variable.
--- 2. Edit your own HUD file to display stamina, using GetNW2Int.
+-- 2. Edit your own HUD file to display stamina, using the GetStamina meta function.
 -- I would personally use the second option.
