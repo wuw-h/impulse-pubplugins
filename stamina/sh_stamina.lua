@@ -24,8 +24,6 @@ end
 
 SYNC_BRTH = impulse.Sync.RegisterVar(SYNC_BOOL)
 
-local meta = FindMetaTable("Player")
-
 local function CalcStaminaChange(ply)
 	local teamData = impulse.Teams.Data[ply:Team()]
 	local runSpeed = teamData.runSpeed or impulse.Config.JogSpeed
